@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pengumuman Kelulusan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      transition: background 0.5s ease;
+    }
+
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      transition: all 0.5s ease;
+    }
+
+    .lulus-container {
+      background-color: #d4edda !important;
+      color: #155724;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #0072ff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #005ec4;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .loading {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #555;
+      animation: blink 5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    #kembaliBtn {
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <audio id="musik" loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-sunny.mp3" type="audio/mpeg">
+    Browser Anda tidak mendukung elemen audio.
+  </audio>
+
+  <div class="container" id="container">
+    <h1 id="judul">
+      Pengumuman Kelulusan Peserta Didik Baru<br>
+      <span style="font-size: 16px; font-weight: normal;">SMKN 11 Bulukumba</span>
+    </h1>
+    <input type="text" id="nama" placeholder="Masukkan Nama Anda" />
+    <select id="jurusan">
+      <option value="">Pilih Jurusan</option>
+      <option value="TJKT">TJKT</option>
+      <option value="TB">TB</option>
+      <option value="TKRO">TKRO</option>
+      <option value="ATPH">ATPH</option>
+    </select>
+    <button onclick="cekKelulusan()" id="tombol">Cek Kelulusan</button>
+    <div class="loading" id="loading" style="display: none;">
+      <div class="spinner" style="margin-bottom: 10px;">
+        🔄
+      </div>
+      Memproses...<br/>
+      Terima Kasih Atas 3 Tahunnya Apapun Hasilnya, Kalian Hebat
+    </div>
+    <div class="result" id="hasil"></div>
+    <button id="kembaliBtn" onclick="resetForm()">🔙 Kembali</button>
+  </div>
+
+  <script>
+    const dataKelulusan = {
+      'TJKT': ['Ahmad', 'Budi', 'Alif Bayu'],
+      'TB': ['Citra', 'Dewi'],
+      'TKRO': ['Eka', 'Fajar'],
+      'ATPH': ['Gina', 'Hari']
+    };
+
+    function cekKelulusan() {
+      const namaInput = document.getElementById('nama');
+      const jurusanSelect = document.getElementById('jurusan');
+      const nama = namaInput.value.trim();
+      const jurusan = jurusanSelect.value;
+      const hasil = document.getElementById('hasil');
+      const loading = document.getElementById('loading');
+      const musik = document.getElementById('musik');
+      const body = document.body;
+      const container = document.getElementById('container');
+      const tombol = document.getElementById('tombol');
+      const judul = document.getElementById('judul');
+      const kembaliBtn = document.getElementById('kembaliBtn');
+
+      hasil.innerText = '';
+      if (!nama || !jurusan) {
+        hasil.innerText = 'Silakan isi nama dan pilih jurusan terlebih dahulu.';
+        hasil.style.color = 'red';
+        return;
+      }
+
+      loading.style.display = 'block';
+      musik.play();
+      namaInput.style.display = 'none';
+      jurusanSelect.style.display = 'none';
+      tombol.style.display = 'none';
+
+      setTimeout(() => {
+        loading.style.display = 'none';
+        musik.pause();
+        musik.currentTime = 0;
+
+        const lulus = dataKelulusan[jurusan]?.some(n => n.toLowerCase() === nama.toLowerCase());
+
+        kembaliBtn.style.display = 'inline-block';
+
+        if (lulus) {
+          body.style.background = 'linear-gradient(to right, #56ab2f, #a8e063)';
+          container.classList.add('lulus-container');
+          judul.innerText = 'Hasil Kelulusan';
+          hasil.innerHTML = `
+            <div style="font-size: 20px; font-weight: bold;">Selamat!</div>
+            <div>Nama: ${nama}</div>
+            <div>Jurusan: ${jurusan}</div>
+            <div style="margin-top: 10px;">Anda dinyatakan <strong>LULUS</strong>.</div>
+          `;
+        } else {
+          hasil.innerText = `Maaf, ${nama} tidak ditemukan dalam data kelulusan jurusan ${jurusan}.`;
+          hasil.style.color = 'red';
+        }
+      }, 15000);
+    }
+
+    function resetForm() {
+      document.getElementById('nama').value = '';
+      document.getElementById('jurusan').value = '';
+      document.getElementById('hasil').innerText = '';
+      document.getElementById('judul').innerText = 'Cek Kelulusan';
+      document.getElementById('nama').style.display = 'block';
+      document.getElementById('jurusan').style.display = 'block';
+      document.getElementById('tombol').style.display = 'inline-block';
+      document.getElementById('kembaliBtn').style.display = 'none';
+
+      document.body.style.background = 'linear-gradient(to right, #00c6ff, #0072ff)';
+      document.getElementById('container').classList.remove('lulus-container');
+    }
+  </script>
+</body>
+</html>
